@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : Entity
 {
+  [Header("Move info")]
   [SerializeField] private float moveSpeed = 4f;
 
   [SerializeField] private float jumpSpeed = 6f;
@@ -21,33 +22,21 @@ public class Player : MonoBehaviour
   private float comboTimeCounter = 0;
   private bool isAttacking = false;
   private int comboCounter = 0;
-
-  [Header("Collision info")]
-  [SerializeField] private float checkGroundDistance = 0f;
-  [SerializeField] private LayerMask layerMask;
-  private bool isGrounded;
-  private Rigidbody2D rb;
-
-  private Animator anim;
   private float xInput;
 
-  private bool isFacingRight = true;
-
   private bool isMoving;
-  private void Awake()
+  protected override void Awake()
   {
-    rb = GetComponent<Rigidbody2D>();
-    anim = GetComponentInChildren<Animator>();
+    base.Awake();
   }
 
-  private void Update()
+  protected override void Update()
   {
+    base.Update();
 
     Movement();
 
     HandleInputs();
-
-    CollisionChecks();
 
     FlipController();
     AnimationControllers();
@@ -107,7 +96,7 @@ public class Player : MonoBehaviour
     }
     else if (dashTime > 0)
     {
-      rb.velocity = new Vector2(xInput * dashSpeed, 0);
+      rb.velocity = new Vector2(facingDirection * dashSpeed, 0);
 
     }
     else
@@ -138,12 +127,6 @@ public class Player : MonoBehaviour
     }
   }
 
-
-  private void CollisionChecks()
-  {
-    isGrounded = Physics2D.Raycast(transform.position, Vector2.down, checkGroundDistance, layerMask);
-  }
-
   private void FlipController()
   {
     if (rb.velocity.x > 0 && !isFacingRight)
@@ -156,17 +139,6 @@ public class Player : MonoBehaviour
     }
   }
 
-  private void Flip()
-  {
-    isFacingRight = !isFacingRight;
-
-    transform.Rotate(0, 180, 0);
-  }
-
-  private void OnDrawGizmos()
-  {
-    Gizmos.DrawLine(transform.position, new Vector3(transform.position.x, transform.position.y - checkGroundDistance));
-  }
 
   public void AttackOver()
   {
